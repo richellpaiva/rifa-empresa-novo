@@ -36,13 +36,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     (function() {
-      const SUPABASE_URL = 'https://wrofweogvhgkoc.evlvdf.supabase.co';
+      // URL CORRETA com o Project ID certo
+      const SUPABASE_URL = 'https://wrofweogvhgkocevlvdj.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indyb2Znd2VvZ3ZoZ2tvY2V2bHZkZiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzc4ODAzODE5LCJleHAiOjIwOTQzNzk4MTl9.LUrdkF9P-yWGFGwdV5dDm63UwvdbcQPpXqpZ5I3xu98';
-
-      // Limpa cache antigo
-      try {
-        localStorage.removeItem('sb-wrofweogvhgkoc-auth-token');
-      } catch(e) {}
 
       const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       const container = document.getElementById('numeros');
