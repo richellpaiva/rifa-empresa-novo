@@ -2,21 +2,44 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rifa da Empresa</title>
   <style>
-    body { font-family: Arial; padding: 20px; }
-    .numero { display: inline-block; width: 50px; padding: 10px; margin: 5px; text-align: center; border: 1px solid #ccc; }
+    body { font-family: Arial; padding: 20px; max-width: 1200px; margin: 0 auto; }
+    .numero { display: inline-block; width: 50px; padding: 10px; margin: 5px; text-align: center; border: 1px solid #ccc; cursor: pointer; }
     .verde { background-color: green; color: white; }
     .cinza { background-color: gray; color: white; }
-    #status { margin-bottom: 20px; padding: 10px; background: #f0f0f0; }
+    #status { margin-bottom: 20px; padding: 10px; background: #f0f0f0; border-radius: 5px; }
+    .pix-area { margin: 20px 0; padding: 15px; background: #e0f7fa; border-radius: 5px; text-align: center; }
+    button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #0088cc; color: white; border: none; border-radius: 5px; }
+    button:hover { background: #006699; }
+    input { padding: 10px; width: 300px; font-size: 16px; text-align: center; }
   </style>
 </head>
 <body>
   <h1>Rifa da Empresa</h1>
-  <div id="status">Carregando...</div>
+  
+  <!-- Área da chave PIX -->
+  <div class="pix-area">
+    <h3>💰 Chave PIX</h3>
+    <input type="text" id="chavePix" value="seu-email@exemplo.com" readonly style="text-align: center;">
+    <br><br>
+    <button id="copiarPix">📋 Copiar chave PIX</button>
+  </div>
+
+  <div id="status">Carregando números...</div>
   <div id="numeros"></div>
 
   <script>
+    // Função para copiar a chave PIX
+    document.getElementById('copiarPix').addEventListener('click', function() {
+      const chave = document.getElementById('chavePix');
+      chave.select();
+      document.execCommand('copy');
+      alert('Chave PIX copiada! ✅');
+    });
+
+    // Função para carregar os números
     (async function() {
       const url = 'https://wrofweogvhgkocevlvdf.supabase.co/rest/v1/numeros?select=*';
       const chave = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indyb2Z3ZW9ndmhna29jZXZsdmRmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODgwMzgxOSwiZXhwIjoyMDk0Mzc5ODE5fQ.-SJeuoVOHkuFH2UVs4GWsY0UNWYiWsSB211zKx5pmy0';
@@ -43,6 +66,12 @@
           const div = document.createElement('div');
           div.className = 'numero ' + (item.nome_comprador ? 'cinza' : 'verde');
           div.textContent = item.numero;
+          // Ao clicar no número, mostra o nome se estiver ocupado
+          if (item.nome_comprador) {
+            div.title = 'Comprador: ' + item.nome_comprador;
+          } else {
+            div.title = 'Número disponível';
+          }
           container.appendChild(div);
         }
       } catch (erro) {
