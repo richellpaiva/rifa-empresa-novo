@@ -26,6 +26,10 @@
       flex-wrap: wrap;
       max-width: 600px;
     }
+    .erro {
+      color: red;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -35,42 +39,43 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    (function() {
-      // URL CORRETA com o Project ID certo
-      const SUPABASE_URL = 'https://wrofweogvhgkocevlvdj.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indyb2Znd2VvZ3ZoZ2tvY2V2bHZkZiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzc4ODAzODE5LCJleHAiOjIwOTQzNzk4MTl9.LUrdkF9P-yWGFGwdV5dDm63UwvdbcQPpXqpZ5I3xu98';
+    // URL CORRETA - sem o erro "subabase" (agora está "supabase")
+    const SUPABASE_URL = 'https://wrofweogvhgkocevlvdf.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indyb2Znd2VvZ3ZoZ2tvY2V2bHZkZiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzc4ODAzODE5LCJleHAiOjIwOTQzNzk4MTl9.LUrdkF9P-yWGFGwdV5dDm63UwvdbcQPpXqpZ5I3xu98';
 
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      const container = document.getElementById('numeros');
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const container = document.getElementById('numeros');
 
-      async function carregar() {
-        try {
-          const { data, error } = await supabase
-            .from('numeros')
-            .select('*')
-            .order('numero', { ascending: true });
+    async function carregarNumeros() {
+      try {
+        const { data, error } = await supabase
+          .from('numeros')
+          .select('*')
+          .order('numero', { ascending: true });
 
-          if (error) throw new Error(error.message);
-
-          if (!data || data.length === 0) {
-            container.innerHTML = 'Nenhum número encontrado.';
-            return;
-          }
-
-          container.innerHTML = '';
-          for (const n of data) {
-            const div = document.createElement('div');
-            div.className = 'numero ' + (n.nome_comprador ? 'ocupado' : 'disponivel');
-            div.textContent = n.numero;
-            container.appendChild(div);
-          }
-        } catch (err) {
-          container.innerHTML = 'Erro: ' + err.message;
+        if (error) {
+          throw new Error(error.message);
         }
-      }
 
-      carregar();
-    })();
+        if (!data || data.length === 0) {
+          container.innerHTML = '<p>Nenhum número encontrado. Cadastre os números primeiro.</p>';
+          return;
+        }
+
+        container.innerHTML = '';
+        for (const item of data) {
+          const div = document.createElement('div');
+          div.className = 'numero ' + (item.nome_comprador ? 'ocupado' : 'disponivel');
+          div.textContent = item.numero;
+          container.appendChild(div);
+        }
+      } catch (erro) {
+        container.innerHTML = '<p class="erro">Erro ao carregar: ' + erro.message + '</p>';
+        console.error('Erro detalhado:', erro);
+      }
+    }
+
+    carregarNumeros();
   </script>
 
 </body>
