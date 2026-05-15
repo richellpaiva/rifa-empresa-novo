@@ -1,82 +1,54 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rifa da Empresa</title>
   <style>
-    .numero {
-      display: inline-block;
-      padding: 15px;
-      margin: 5px;
-      border: 1px solid #ccc;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .disponivel {
-      background-color: green;
-      color: white;
-    }
-    .ocupado {
-      background-color: gray;
-      color: white;
-    }
-    #numeros {
-      display: flex;
-      flex-wrap: wrap;
-      max-width: 600px;
-    }
-    .erro {
-      color: red;
-      font-weight: bold;
-    }
+    body { font-family: Arial; padding: 20px; }
+    .numero { display: inline-block; width: 50px; padding: 10px; margin: 5px; text-align: center; border: 1px solid #ccc; }
+    .verde { background-color: green; color: white; }
+    .cinza { background-color: gray; color: white; }
+    #status { margin-bottom: 20px; padding: 10px; background: #f0f0f0; }
   </style>
 </head>
 <body>
-
   <h1>Rifa da Empresa</h1>
-  <div id="numeros">Carregando números...</div>
+  <div id="status">Carregando...</div>
+  <div id="numeros"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // URL CORRETA - sem o erro "subabase" (agora está "supabase")
-    const SUPABASE_URL = 'https://wrofweogvhgkocevlvdf.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indyb2Znd2VvZ3ZoZ2tvY2V2bHZkZiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzc4ODAzODE5LCJleHAiOjIwOTQzNzk4MTl9.LUrdkF9P-yWGFGwdV5dDm63UwvdbcQPpXqpZ5I3xu98';
-
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const container = document.getElementById('numeros');
-
-    async function carregarNumeros() {
+    (async function() {
+      const url = 'https://wrofweogvhgkocevlvdf.supabase.co/rest/v1/numeros?select=*';
+      const chave = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indyb2Z3ZW9ndmhna29jZXZsdmRmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODgwMzgxOSwiZXhwIjoyMDk0Mzc5ODE5fQ.-SJeuoVOHkuFH2UVs4GWsY0UNWYiWsSB211zKx5pmy0';
+      
+      const statusDiv = document.getElementById('status');
+      const container = document.getElementById('numeros');
+      
       try {
-        const { data, error } = await supabase
-          .from('numeros')
-          .select('*')
-          .order('numero', { ascending: true });
-
-        if (error) {
-          throw new Error(error.message);
-        }
-
-        if (!data || data.length === 0) {
-          container.innerHTML = '<p>Nenhum número encontrado. Cadastre os números primeiro.</p>';
-          return;
-        }
-
+        const resposta = await fetch(url, {
+          headers: { 
+            'apikey': chave, 
+            'Authorization': 'Bearer ' + chave 
+          }
+        });
+        
+        if (!resposta.ok) throw new Error('Erro: ' + resposta.status);
+        
+        const dados = await resposta.json();
+        
+        statusDiv.innerHTML = '✅ ' + dados.length + ' números disponíveis';
+        
         container.innerHTML = '';
-        for (const item of data) {
+        for (let item of dados) {
           const div = document.createElement('div');
-          div.className = 'numero ' + (item.nome_comprador ? 'ocupado' : 'disponivel');
+          div.className = 'numero ' + (item.nome_comprador ? 'cinza' : 'verde');
           div.textContent = item.numero;
           container.appendChild(div);
         }
       } catch (erro) {
-        container.innerHTML = '<p class="erro">Erro ao carregar: ' + erro.message + '</p>';
-        console.error('Erro detalhado:', erro);
+        statusDiv.innerHTML = '❌ ' + erro.message;
       }
-    }
-
-    carregarNumeros();
+    })();
   </script>
-
 </body>
 </html>
