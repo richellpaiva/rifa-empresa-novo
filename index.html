@@ -5,60 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rifa da Empresa</title>
   <style>
-    .numero { padding: 10px; border: 1px solid #ccc; margin: 2px; cursor: pointer; }
-    .disponivel { background: #4caf50; color: white; }
-    .ocupado { background: #ddd; color: #666; }
+    .numero {
+      display: inline-block;
+      padding: 15px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .disponivel {
+      background-color: green;
+      color: white;
+    }
+    .ocupado {
+      background-color: gray;
+      color: white;
+    }
+    #numeros {
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 600px;
+    }
   </style>
 </head>
 <body>
+
   <h1>Rifa da Empresa</h1>
-  <div id="numeros" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+  <div id="numeros">Carregando números...</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // CORRIGIDO: sem espaços na URL
-    const SUPABASE_URL = 'https://wrofweogvhgkoc.evlvdf.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indyb2Znd2VvZ3ZoZ2tvY2V2bHZkZiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzc4ODAzODE5LCJleHAiOjIwOTQzNzk4MTl9.LUrdkF9P-yWGFGwdV5dDm63UwvdbcQPpXqpZ5I3xu98';
+    (function() {
+      const SUPABASE_URL = 'https://wrofweogvhgkoc.evlvdf.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indyb2Znd2VvZ3ZoZ2tvY2V2bHZkZiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzc4ODAzODE5LCJleHAiOjIwOTQzNzk4MTl9.LUrdkF9P-yWGFGwdV5dDm63UwvdbcQPpXqpZ5I3xu98';
 
-    // Força limpeza de cache antigo
-    localStorage.removeItem('sb-wrofweogvhgkoc-auth-token');
-    
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    async function carregarNumeros() {
-      const container = document.getElementById('numeros');
-      container.innerHTML = '<p>Carregando...</p>';
-      
+      // Limpa cache antigo
       try {
-        const { data, error } = await supabase
-          .from('numeros')
-          .select('*')
-          .order('numero', { ascending: true });
-        
-        if (error) throw error;
-        
-        if (!data || data.length === 0) {
-          container.innerHTML = '<p>Nenhum número encontrado. Execute o seed no Supabase.</p>';
-          return;
+        localStorage.removeItem('sb-wrofweogvhgkoc-auth-token');
+      } catch(e) {}
+
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const container = document.getElementById('numeros');
+
+      async function carregar() {
+        try {
+          const { data, error } = await supabase
+            .from('numeros')
+            .select('*')
+            .order('numero', { ascending: true });
+
+          if (error) throw new Error(error.message);
+
+          if (!data || data.length === 0) {
+            container.innerHTML = 'Nenhum número encontrado.';
+            return;
+          }
+
+          container.innerHTML = '';
+          for (const n of data) {
+            const div = document.createElement('div');
+            div.className = 'numero ' + (n.nome_comprador ? 'ocupado' : 'disponivel');
+            div.textContent = n.numero;
+            container.appendChild(div);
+          }
+        } catch (err) {
+          container.innerHTML = 'Erro: ' + err.message;
         }
-        
-        container.innerHTML = '';
-        data.forEach(n => {
-          const div = document.createElement('div');
-          div.className = `numero ${n.nome_comprador ? 'ocupado' : 'disponivel'}`;
-          div.textContent = n.numero;
-          div.title = n.nome_comprador ? `Vendido para: ${n.nome_comprador}` : 'Disponível';
-          container.appendChild(div);
-        });
-        
-        console.log(`${data.length} números carregados`);
-      } catch (err) {
-        console.error('Erro detalhado:', err);
-        container.innerHTML = `<p style="color:red">Erro: ${err.message}</p>`;
       }
-    }
-    
-    carregarNumeros();
+
+      carregar();
+    })();
   </script>
+
 </body>
-</html> 
+</html>
