@@ -11,13 +11,15 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const SUPABASE_URL = 'https://wrofweogvhgkoc evlvdf.supabase.co'; // Verifique se não tem espaços
+    // Configurações do Supabase
+    const SUPABASE_URL = 'https://wrofweogvhgkoc evlvdf.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indyb2Znd2VvZ3ZoZ2tvY2V2bHZkZiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzc4ODAzODE5LCJleHAiOjIwOTQzNzk4MTl9.LUrdkF9P-yWGFGwdV5dDm63UwvdbcQPpXqpZ5I3xu98';
 
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Renomeia a variável para evitar conflito
+    const meuSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function carregarNumeros() {
-      const { data, error } = await supabase.from('numeros').select('*');
+      const { data, error } = await meuSupabase.from('numeros').select('*');
       if (error) {
         console.error('Erro:', error);
         document.getElementById('numeros').innerHTML = 'Erro: ' + error.message;
